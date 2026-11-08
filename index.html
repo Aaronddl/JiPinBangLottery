@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幸运抽奖</title>
+    <style>
+        /* ==================== 主题变量 ==================== */
+        :root[data-theme="dark"] {
+            --bg: #0a0a0a;
+            --bg-card: #141414;
+            --border: #1e1e1e;
+            --text: #e0e0e0;
+            --text-muted: #888;
+            --accent: #ff6600;
+            --accent-glow: rgba(255,102,0,0.3);
+            --header-bg: rgba(10,10,10,0.92);
+            --btn-bg: #1a1a1a;
+            --result-bg: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+        }
+        :root[data-theme="light"] {
+            --bg: #f5f5f5;
+            --bg-card: #fff;
+            --border: #e0e0e0;
+            --text: #1a1a1a;
+            --text-muted: #666;
+            --accent: #e65c00;
+            --accent-glow: rgba(230,92,0,0.2);
+            --header-bg: rgba(255,255,255,0.92);
+            --btn-bg: #f0f0f0;
+            --result-bg: linear-gradient(135deg, #fff 0%, #f5f5f5 100%);
+        }
+
+        /* ==================== 全局 ==================== */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background .3s, color .3s;
+        }
+        a { color: var(--accent); text-decoration: none; }
+
+        /* ==================== 顶部导航 ==================== */
+        header {
+            position: fixed; top:0; left:0; width:100%; height:60px;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 28px; z-index: 1000;
+        }
+        .logo {
+            font-size: 20px; font-weight: 700; color: var(--accent);
+            letter-spacing: 1px;
+        }
+        .logo span { color: var(--text); font-weight: 300; }
+        .nav-links { display: flex; gap: 6px; list-style: none; }
+        .nav-links a {
+            padding: 7px 14px; border-radius: 6px; font-size: 14px;
+            color: var(--text-muted); transition: all .2s;
+        }
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--accent); background: var(--accent-glow);
+            text-decoration: none;
+        }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .icon-btn {
+            width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border);
+            background: var(--bg-card); color: var(--text-muted); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px; transition: all .2s;
+        }
+        .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .icon-btn.muted { opacity: .5; }
+
+        /* ==================== 主容器 ==================== */
+        .main {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 100px 20px 60px; gap: 40px;
+        }
+
+        /* ==================== 显示区域 ==================== */
+        .display-area {
+            width: 100%; max-width: 520px;
+            aspect-ratio: 16 / 9;
+            background: var(--result-bg);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 40px var(--accent-glow);
+            transition: border-color .3s, box-shadow .3s;
+        }
+        .display-area.rolling {
+            border-color: var(--accent);
+            box-shadow: 0 0 60px var(--accent-glow);
+        }
+        .display-area .word {
+            font-size: clamp(28px, 6vw, 56px);
+            font-weight: 700;
+            color: var(--accent);
+            text-align: center;
+            padding: 20px;
+            transition: transform .08s;
+        }
+        .display-area.rolling .word {
+            animation: flicker .08s infinite;
+        }
+        @keyframes flicker {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: .7; transform: scale(.97); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* 结果弹出效果 */
+        .display-area.result .word {
+            animation: resultPop .5s ease-out;
+        }
+        @keyframes resultPop {
+            0% { transform: scale(1.4); opacity: 0; }
+            60% { transform: scale(.95); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 装饰光效 */
+        .display-area::before {
+            content: '';
+            position: absolute; inset: -2px;
+            border-radius: 16px;
+            background: conic-gradient(from 0deg, transparent, var(--accent), transparent, transparent);
+            opacity: 0;
+            transition: opacity .3s;
+            z-index: -1;
+            animation: rotate 3s linear infinite;
+        }
+        .display-area.rolling::before { opacity: .6; }
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== 按钮组 ==================== */
+        .btn-group { display: flex; gap: 20px; }
+        .btn {
+            padding: 14px 48px;
+            border-radius: 12px;
+            border: 2px solid var(--accent);
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            letter-spacing: 2px;
+        }
+        .btn-start {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-start:hover {
+            background: #ff7a1a;
+            box-shadow: 0 4px 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+        .btn-start:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-stop {
+            background: transparent;
+            color: var(--accent);
+        }
+        .btn-stop:hover {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+        .btn-stop:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ==================== 历史记录 ==================== */
+        .history {
+            width: 100%; max-width: 520px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+        }
+        .history-title {
+            font-size: 13px; color: var(--text-muted);
+            margin-bottom: 10px; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+        .history-clear {
+            font-size: 12px; color: var(--accent);
+            cursor: pointer; background: none; border: none;
+        }
+        .history-list {
+            display: flex; flex-wrap: wrap; gap: 8px;
+        }
+        .history-tag {
+            padding: 4px 12px;
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .history-empty {
+            font-size: 13px; color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ==================== 移动端 ==================== */
+        @media (max-width: 600px) {
+            .nav-links { display: none; }
+            .btn { padding: 12px 32px; font-size: 16px; }
+            .display-area { max-width: 90vw; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<header>
+    <div class="logo">极品帮<span>抽奖</span></div>
+    
+    <div class="header-actions">
+        <button class="icon-btn muted" id="musicBtn" title="背景音乐">🎵</button>
+        <button class="icon-btn" id="themeBtn" title="切换主题">🌙</button>
+    </div>
+</header>
+
+<!-- 主内容 -->
+<div class="main">
+    <!-- 显示区域 -->
+    <div class="display-area" id="displayArea">
+        <div class="word" id="wordDisplay">准备开始</div>
+    </div>
+
+    <!-- 按钮 -->
+    <div class="btn-group">
+        <button class="btn btn-start" id="startBtn">开 始</button>
+        <button class="btn btn-stop" id="stopBtn" disabled>停 止</button>
+    </div>
+
+    <!-- 历史记录 -->
+    <div class="history">
+        <div class="history-title">
+            <span>📋 抽奖记录</span>
+            <button class="history-clear" id="clearBtn">清空</button>
+        </div>
+        <div class="history-list" id="historyList">
+            <span class="history-empty">暂无记录</span>
+        </div>
+    </div>
+</div>
+
+<!-- 背景音乐（替换 src 为你的音乐文件） -->
+<audio id="bgMusic" loop preload="auto">
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    // ============ 奖池数据（可自行修改） ============
+    const prizePool = [
+        '333', '社恐男子', '口哥',
+        '过期榨菜哥', '老玉米', '大象',
+        '哨位', '周智旭', 'SASA',
+        '酇'
+    ];
+
+    // ============ DOM ============
+    const displayArea = document.getElementById('displayArea');
+    const wordDisplay = document.getElementById('wordDisplay');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const historyList = document.getElementById('historyList');
+    const clearBtn = document.getElementById('clearBtn');
+    const bgMusic = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicBtn');
+    const themeBtn = document.getElementById('themeBtn');
+
+    let timer = null;
+    let isRolling = false;
+    let history = [];
+    let musicPlaying = false;
+
+    // ============ 主题切换 ============
+    themeBtn.addEventListener('click', () => {
+        const html = document.documentElement;
+        const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        themeBtn.textContent = next === 'dark' ? '🌙' : '☀️';
+    });
+
+    // ============ 背景音乐 ============
+    musicBtn.addEventListener('click', () => {
+        if (musicPlaying) {
+            bgMusic.pause();
+            musicBtn.classList.add('muted');
+            musicPlaying = false;
+        } else {
+            bgMusic.play().catch(() => {
+                // 浏览器可能阻止自动播放
+            });
+            musicBtn.classList.remove('muted');
+            musicPlaying = true;
+        }
+    });
+
+    // 页面加载后尝试播放（浏览器可能阻止，需用户交互）
+    document.addEventListener('click', function initMusic() {
+        if (!musicPlaying && !isRolling) {
+            bgMusic.play().then(() => {
+                musicBtn.classList.remove('muted');
+                musicPlaying = true;
+            }).catch(() => {});
+        }
+        document.removeEventListener('click', initMusic);
+    }, { once: true });
+
+    // ============ 开始抽奖 ============
+    startBtn.addEventListener('click', () => {
+        if (isRolling) return;
+        isRolling = true;
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        displayArea.classList.add('rolling');
+        displayArea.classList.remove('result');
+
+        // 确保音乐播放
+        if (!musicPlaying) {
+            bgMusic.play().catch(() => {});
+            musicBtn.classList.remove('muted');
+            musicPlaying = true;
+        }
+
+        // 快速滚动
+        timer = setInterval(() => {
+            const random = prizePool[Math.floor(Math.random() * prizePool.length)];
+            wordDisplay.textContent = random;
+        }, 60);
+    });
+
+    // ============ 停止抽奖 ============
+    stopBtn.addEventListener('click', () => {
+        if (!isRolling) return;
+        isRolling = false;
+        clearInterval(timer);
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        displayArea.classList.remove('rolling');
+        displayArea.classList.add('result');
+
+        // 记录结果
+        const result = wordDisplay.textContent;
+        history.unshift(result);
+        renderHistory();
+    });
+
+    // ============ 渲染历史 ============
+    function renderHistory() {
+        if (history.length === 0) {
+            historyList.innerHTML = '<span class="history-empty">暂无记录</span>';
+            return;
+        }
+        historyList.innerHTML = history.map(item =>
+            `<span class="history-tag">${item}</span>`
+        ).join('');
+    }
+
+    // ============ 清空历史 ============
+    clearBtn.addEventListener('click', () => {
+        history = [];
+        renderHistory();
+    });
+
+    // ============ 键盘快捷键 ============
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+            e.preventDefault();
+            if (!isRolling) startBtn.click();
+            else stopBtn.click();
+        }
+    });
+</script>
+
+</body>
+</html>
+
+
