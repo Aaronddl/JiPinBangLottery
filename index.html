@@ -25,6 +25,21 @@ body{
   opacity:.55;
 }
 
+/* ============ PC 宽屏适配 ============ */
+@media (min-width: 640px){
+  body{
+    background:
+      radial-gradient(72% 62% at 50% 0%, #180b04 0%, #070403 58%, #040201 100%);
+  }
+  #app{
+    border-left:1px solid rgba(255,122,26,.14);
+    border-right:1px solid rgba(255,122,26,.14);
+    box-shadow:
+      0 0 110px -26px rgba(255,110,26,.4),
+      inset 0 0 100px rgba(0,0,0,.55);
+  }
+}
+
 /* ============ 顶部操作区 ============ */
 .top-actions{
   position:absolute;z-index:90;
@@ -40,7 +55,7 @@ body{
   border:1px solid rgba(255,122,26,.42);
   background:linear-gradient(180deg, rgba(255,122,26,.2), rgba(255,122,26,.05));
   box-shadow:0 0 22px -8px rgba(255,122,26,.7);
-  transition:transform .16s, opacity .3s;
+  transition:transform .16s, opacity .3s, color .2s, border-color .2s, box-shadow .2s;
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
 }
 .skip-btn:active{transform:scale(.94)}
@@ -52,7 +67,7 @@ body{
   border:1px solid rgba(255,122,26,.42);
   background:linear-gradient(180deg, rgba(255,122,26,.2), rgba(255,122,26,.05));
   box-shadow:0 0 22px -8px rgba(255,122,26,.7);
-  transition:transform .16s, color .2s, opacity .3s;
+  transition:transform .16s, color .2s, opacity .3s, border-color .2s, box-shadow .2s;
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
 }
 .mute-btn:active{transform:scale(.92)}
@@ -751,6 +766,7 @@ body{
   border:1px solid rgba(255,122,26,.22);
   box-shadow:inset 0 2px 16px rgba(0,0,0,.92), 0 12px 34px -14px #000;
   touch-action:none;
+  cursor:pointer;
   transition:border-color .25s, box-shadow .35s;
 }
 .track-ambient{
@@ -817,6 +833,53 @@ body{
   touch-action:none;cursor:grab;
 }
 .knob.dragging{transition:none;cursor:grabbing}
+
+/* ============ PC 悬停反馈（仅精确指针设备） ============ */
+@media (hover:hover) and (pointer:fine){
+  .skip-btn:hover{
+    color:#ffd9b0;
+    border-color:rgba(255,150,70,.75);
+    box-shadow:0 0 32px -6px rgba(255,122,26,.95);
+  }
+  .mute-btn:hover{
+    color:#ffd9b0;
+    border-color:rgba(255,150,70,.75);
+    box-shadow:0 0 32px -6px rgba(255,122,26,.95);
+  }
+  .mute-btn.muted:hover{
+    color:rgba(255,200,150,.7);
+  }
+  .mode-btn:hover{
+    color:#ffd9b0;
+    border-color:rgba(255,150,70,.65);
+    background:rgba(255,122,26,.12);
+  }
+  .mode-btn.active:hover{
+    color:#1a0a02;
+    background:linear-gradient(180deg,#ffc48a,#ff8a2e);
+  }
+  .again-btn:hover{
+    transform:translateY(-1px);
+    box-shadow:0 0 42px -6px rgba(255,122,26,.95), inset 0 0 22px -8px rgba(255,122,26,.85);
+  }
+  .track:hover{
+    border-color:rgba(255,122,26,.42);
+  }
+  .knob:hover{
+    color:#ffe0c0;
+    box-shadow:0 0 32px rgba(255,122,26,.7), inset 0 0 18px rgba(255,140,60,.42);
+  }
+  .gcard:hover{
+    box-shadow:
+      0 0 0 1px rgba(0,0,0,.85),
+      0 0 52px -4px var(--c-glow),
+      0 24px 52px -20px #000,
+      inset 0 0 46px rgba(0,0,0,.72);
+  }
+  .sum-card:hover{
+    border-color:var(--c);
+  }
+}
 </style>
 </head>
 <body>
@@ -1399,7 +1462,7 @@ const RARITY = {
 };
 
 const POOL = {
-    4:[
+ 4:[
     {name:'苍蝇', sigil:'🪰', tag:''},
     {name:'大象', sigil:'🐘', tag:''},
     {name:'爸爸的雷达', sigil:'💿', tag:''},
@@ -1443,6 +1506,15 @@ function vibrate(pattern){
     try { navigator.vibrate(pattern); } catch(e){}
   }
 }
+
+/* 是否精确指针设备（鼠标）：用于“点击轨道跳转”的 PC 专属交互 */
+const isFinePointer = (function(){
+  try {
+    return window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+  } catch(e){
+    return false;
+  }
+})();
 
 /* ================= 抽卡逻辑（严格概率，无保底） ================= */
 function rollRarity(){
@@ -1534,7 +1606,7 @@ let chargedColor = null;
 let pullToken = 0;
 let revealToken = 0;
 let legendTimers = [];
-let pullCount = 10;   // 当前选择的抽数：1 或 10
+let pullCount = 10;
 
 /* ================= 抽数选择 ================= */
 modeBtns.forEach(btn => {
@@ -1785,26 +1857,46 @@ function applyChargedVisual(){
   knob.style.color = gc;
 }
 
-knob.addEventListener('pointerdown', e => {
+/* —— 拖拽（鼠标 / 触摸通用，事件挂在轨道上） —— */
+track.addEventListener('pointerdown', e => {
   if (locked) return;
   measure();
+
+  const r = track.getBoundingClientRect();
+  const px = e.clientX - r.left;
+  const knobW = knob.offsetWidth;
+  const knobLeft = 3 + x;
+  const onKnob = px >= knobLeft - 8 && px <= knobLeft + knobW + 8;
+
+  if (!onKnob){
+    // 只有鼠标等精确指针设备，才允许点击轨道把圆钮跳过去
+    if (!isFinePointer) return;
+    grabOffset = knobW / 2;
+    x = Math.max(0, Math.min(maxX, px - knobW / 2 - 3));
+  } else {
+    grabOffset = px - knobLeft;
+  }
+
   dragging = true;
   knob.classList.add('dragging');
   track.classList.add('dragging');
-  knob.setPointerCapture(e.pointerId);
-  const r = track.getBoundingClientRect();
-  grabOffset = e.clientX - r.left - (x + 3);
+  try { track.setPointerCapture(e.pointerId); } catch(err){}
+  render();
+
+  const p = maxX > 0 ? x / maxX : 0;
   AudioEngine.startDragSound();
+  AudioEngine.updateDragSound(p);
+
+  if (e.cancelable) e.preventDefault();
 });
 
-knob.addEventListener('pointermove', e => {
+track.addEventListener('pointermove', e => {
   if (!dragging) return;
   const r = track.getBoundingClientRect();
-  let nx = e.clientX - r.left - grabOffset - 3;
-  x = Math.max(0, Math.min(maxX, nx));
+  const px = e.clientX - r.left;
+  x = Math.max(0, Math.min(maxX, px - grabOffset - 3));
   render();
-  const p = maxX > 0 ? x / maxX : 0;
-  AudioEngine.updateDragSound(p);
+  AudioEngine.updateDragSound(maxX > 0 ? x / maxX : 0);
 });
 
 function endDrag(){
@@ -1817,8 +1909,12 @@ function endDrag(){
   if (p > 0.78) startPull();
   else { x = 0; render(); }
 }
-knob.addEventListener('pointerup', endDrag);
-knob.addEventListener('pointercancel', endDrag);
+
+track.addEventListener('pointerup', endDrag);
+track.addEventListener('pointercancel', endDrag);
+track.addEventListener('lostpointercapture', () => {
+  if (dragging) endDrag();
+});
 
 /* ================= 开始抽卡 ================= */
 function startPull(){
