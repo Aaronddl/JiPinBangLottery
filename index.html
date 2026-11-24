@@ -198,7 +198,7 @@ body{
 .reveal-dots{display:flex;gap:6px}
 .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.14);transition:all .3s}
 .dot.current{background:#fff;box-shadow:0 0 10px #fff;transform:scale(1.35)}
-.stage{flex:1;width:100%;min-height:0;position:relative;display:grid;place-items:center}
+.stage{flex:1;width:100%;min-height:0;position:relative;display:grid;place-items:center;overflow:hidden}
 
 .tap-hint{
   font-size:12px;letter-spacing:.35em;text-indent:.35em;
@@ -834,7 +834,7 @@ body{
 }
 .knob.dragging{transition:none;cursor:grabbing}
 
-/* ============ PC 悬停反馈（仅精确指针设备） ============ */
+/* ============ PC 悬停反馈 ============ */
 @media (hover:hover) and (pointer:fine){
   .skip-btn:hover{
     color:#ffd9b0;
@@ -846,9 +846,7 @@ body{
     border-color:rgba(255,150,70,.75);
     box-shadow:0 0 32px -6px rgba(255,122,26,.95);
   }
-  .mute-btn.muted:hover{
-    color:rgba(255,200,150,.7);
-  }
+  .mute-btn.muted:hover{ color:rgba(255,200,150,.7); }
   .mode-btn:hover{
     color:#ffd9b0;
     border-color:rgba(255,150,70,.65);
@@ -862,9 +860,7 @@ body{
     transform:translateY(-1px);
     box-shadow:0 0 42px -6px rgba(255,122,26,.95), inset 0 0 22px -8px rgba(255,122,26,.85);
   }
-  .track:hover{
-    border-color:rgba(255,122,26,.42);
-  }
+  .track:hover{ border-color:rgba(255,122,26,.42); }
   .knob:hover{
     color:#ffe0c0;
     box-shadow:0 0 32px rgba(255,122,26,.7), inset 0 0 18px rgba(255,140,60,.42);
@@ -876,9 +872,220 @@ body{
       0 24px 52px -20px #000,
       inset 0 0 46px rgba(0,0,0,.72);
   }
-  .sum-card:hover{
-    border-color:var(--c);
+  .sum-card:hover{ border-color:var(--c); }
+}
+
+/* ============================================================
+   横屏适配：拉杆在左，竖向；内容区在右
+   ============================================================ */
+@media (orientation: landscape) and (max-height: 560px){
+  body{ overflow:hidden; }
+
+  #app{
+    max-width:none;
+    border-left:none;
+    border-right:none;
+    box-shadow:none;
   }
+
+  /* 所有内容区让出左侧拉杆宽度 */
+  .screen{
+    left:96px;
+    padding:10px 16px 12px;
+  }
+
+  /* ---- 待机 ---- */
+  .title-sub{
+    font-size:9px;letter-spacing:.35em;text-indent:.35em;margin-bottom:8px;
+  }
+  .title{ font-size:clamp(26px,7vh,40px); }
+  .title-line{ width:90px;margin:12px auto; }
+  .pool-row{ gap:6px; }
+  .pool-chip{ font-size:9.5px;padding:4px 10px;letter-spacing:.04em; }
+
+  /* ---- 逐张展示 ---- */
+  #screenReveal{ padding:10px 16px 12px; }
+  .reveal-top{ gap:6px;padding-top:2px; }
+  .reveal-counter{ font-size:10px; }
+  .reveal-counter b{ font-size:17px; }
+  .dot{ width:5px;height:5px; }
+  .tap-hint{ font-size:10px;letter-spacing:.25em;text-indent:.25em;margin-top:0; }
+
+  /* 卡牌按屏幕高度约束，保证完整显示 */
+  .gcard,
+  .flash-card{
+    width:auto;
+    height:min(64vh,300px);
+    max-height:100%;
+    aspect-ratio:3/4;
+  }
+  .gcard-sigil{ font-size:clamp(38px,12vh,62px); }
+  .gcard-info{ padding:8px 12px 12px; }
+  .gcard-name{ font-size:15px; }
+  .gcard-meta{ margin-top:6px; }
+  .gcard-tag{ font-size:10px;padding:2px 7px; }
+  .gcard-stars{ font-size:11px;letter-spacing:2px; }
+  .flash-stars{ font-size:21px;letter-spacing:4px; }
+  .flash-label{ font-size:10px;letter-spacing:.3em;text-indent:.3em; }
+  .flash-card{ gap:10px; }
+
+  /* ---- 总览 ---- */
+  #screenSummary{ padding:10px 16px 12px; justify-content:center; }
+  .sum-head{
+    font-size:10px;letter-spacing:.3em;text-indent:.3em;margin-bottom:10px;
+  }
+  .sum-grid{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:6px;
+    max-height:none;
+    overflow:visible;
+    padding:0;
+  }
+  .sum-card{
+    flex:0 0 118px;
+    padding:5px 6px;
+    gap:5px;
+    border-radius:8px;
+  }
+  .sum-sigil{
+    width:24px;height:24px;flex:0 0 24px;font-size:13px;border-radius:6px;
+  }
+  .sum-name{ font-size:10.5px; }
+  .sum-meta{ gap:4px;margin-top:2px; }
+  .sum-tag{ font-size:8px;padding:0 3px; }
+  .sum-stars{ font-size:8px;letter-spacing:0; }
+  .again-btn{
+    margin-top:12px;padding:9px 32px;font-size:12px;
+    letter-spacing:.18em;text-indent:.18em;
+  }
+
+  /* ---- 拉杆区：左侧竖向 ---- */
+  #leverBar{
+    left:0;right:auto;top:0;bottom:0;
+    width:96px;
+    padding:12px 8px calc(12px + env(safe-area-inset-bottom,0px));
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    transform:none;
+  }
+  #leverBar.hidden{
+    transform:translateX(-30px);
+    opacity:0;
+  }
+
+  .pull-mode-row{
+    order:0;
+    flex-direction:column;
+    gap:6px;
+    margin:0;
+    flex:0 0 auto;
+  }
+  .mode-btn{
+    width:64px;
+    padding:6px 0;
+    font-size:10.5px;
+    letter-spacing:.1em;
+    text-indent:.1em;
+  }
+
+  .track{
+    order:1;
+    width:56px;
+    height:auto;
+    flex:1 1 auto;
+    min-height:0;
+    max-height:none;
+    border-radius:28px;
+  }
+
+  .lever-hint{
+    order:2;
+    flex:0 0 auto;
+    font-size:9px;
+    letter-spacing:.1em;
+    text-indent:.1em;
+    margin:0;
+    white-space:nowrap;
+  }
+
+  /* 竖向填充：从顶部往下增长 */
+  .track-fill{
+    left:0;right:0;top:0;bottom:auto;
+    width:100% !important;
+    height:0;
+    background:linear-gradient(180deg, rgba(255,122,26,.06), #ff7a1a);
+    transition:height .32s cubic-bezier(.2,.9,.3,1.2), opacity .25s, background .3s;
+  }
+  .track-glow{
+    left:0;right:0;top:0;bottom:auto;
+    width:100% !important;
+    height:0;
+    background:linear-gradient(180deg, transparent, #ff7a1a);
+    transition:height .32s cubic-bezier(.2,.9,.3,1.2), opacity .25s, background .3s;
+  }
+  .track.dragging .track-fill,
+  .track.dragging .track-glow{ transition:none; }
+
+  /* 竖向流光 */
+  .track-flow{
+    background:repeating-linear-gradient(170deg,
+      transparent 0 14px, rgba(255,255,255,.4) 14px 18px, transparent 18px 34px);
+  }
+  .track.charged .track-flow{
+    animation:flowMoveVert 1.1s linear infinite;
+  }
+  @keyframes flowMoveVert{
+    from{ background-position:0 0; }
+    to{ background-position:0 68px; }
+  }
+
+  /* 竖向刻度线 */
+  .track-lines{
+    background:repeating-linear-gradient(180deg,
+      rgba(255,255,255,.06) 0 1px, transparent 1px 14px);
+    -webkit-mask:linear-gradient(180deg, transparent, #000);
+    mask:linear-gradient(180deg, transparent, #000);
+  }
+
+  /* 圆钮：顶部起始，向下拖 */
+  .knob{
+    left:50%;
+    top:0;
+    width:48px;
+    height:48px;
+    font-size:17px;
+    transform:translate(-50%, 3px);
+    transition:transform .32s cubic-bezier(.2,.9,.3,1.2), box-shadow .25s, color .25s;
+  }
+  .knob.dragging{ transition:none; }
+
+  /* 顶部按钮 */
+  .top-actions{
+    top:calc(8px + env(safe-area-inset-top,0px));
+    right:10px;
+  }
+  .skip-btn{ padding:7px 12px;font-size:11px; }
+  .mute-btn{ width:34px;height:34px; }
+
+  /* 六星动画尺寸适配 */
+  .s1-earth{
+    width:170vh;
+    height:170vh;
+    bottom:-120vh;
+  }
+  .s3-platform{
+    width:140px;height:140px;margin:-70px 0 0 -70px;
+  }
+  .s3-flyer{
+    width:60px;height:60px;margin:-30px 0 0 -30px;font-size:30px;
+  }
+  .s3-flyer::before{ width:36px;height:150px; }
+  .li-caption{ bottom:6%;font-size:11px; }
+  .s1-meteor::after{ width:90px; }
 }
 </style>
 </head>
@@ -937,7 +1144,7 @@ body{
   <section class="screen" id="screenIdle">
     <div class="idle-particles" id="idleParticles"></div>
     <div class="title-block">
-      <div class="title-sub">ORACLE OF EMBERS</div>
+      <div class="title-sub">JiPinBangChouKa</div>
       <h1 class="title">极品帮抽卡</h1>
       <div class="title-line"></div>
       <div class="pool-row">
@@ -988,7 +1195,7 @@ body{
 
 <script>
 /* ============================================================
-   音频引擎（纯 Web Audio 合成，无外部音频文件）
+   音频引擎（纯 Web Audio 合成）
    ============================================================ */
 const AudioEngine = {
   ctx: null,
@@ -1507,7 +1714,6 @@ function vibrate(pattern){
   }
 }
 
-/* 是否精确指针设备（鼠标）：用于“点击轨道跳转”的 PC 专属交互 */
 const isFinePointer = (function(){
   try {
     return window.matchMedia('(hover:hover) and (pointer:fine)').matches;
@@ -1519,9 +1725,9 @@ const isFinePointer = (function(){
 /* ================= 抽卡逻辑（严格概率，无保底） ================= */
 function rollRarity(){
   const r = Math.random();
-  if (r < 0.024) return 6;   // 2.4%  六星
-  if (r < 0.124) return 5;   // 10%   五星
-  return 4;                  // 87.6% 四星
+  if (r < 0.024) return 6;
+  if (r < 0.124) return 5;
+  return 4;
 }
 
 function rollN(n){
@@ -1568,7 +1774,6 @@ const SHOTS = [shot1, shot2, shot3];
 
 const SCREENS = {idle:'screenIdle', reveal:'screenReveal', summary:'screenSummary'};
 
-/* 根据当前屏幕控制顶部按钮显隐 */
 function updateTopActions(k){
   if (k === 'idle'){
     muteBtn.style.display = '';
@@ -1599,14 +1804,31 @@ let idx = 0;
 let readyForNext = false;
 let locked = false;
 let dragging = false;
-let x = 0;
-let maxX = 0;
+let pos = 0;       // 拉杆进度距离（横向=左到右，纵向=上到下）
+let maxPos = 0;
 let grabOffset = 0;
 let chargedColor = null;
 let pullToken = 0;
 let revealToken = 0;
 let legendTimers = [];
 let pullCount = 10;
+let isVert = false; // 横屏竖向拉杆
+
+/* ================= 布局方向检测 ================= */
+function checkLayout(){
+  let vert = false;
+  try {
+    vert = window.matchMedia('(orientation: landscape) and (max-height: 560px)').matches;
+  } catch(e){
+    vert = window.innerWidth > window.innerHeight && window.innerHeight < 560;
+  }
+  isVert = vert;
+}
+
+function updateLeverHintIdle(){
+  leverHint.textContent = isVert ? '向下拖动拉杆' : '向右拖动拉杆';
+  leverHint.style.color = '';
+}
 
 /* ================= 抽数选择 ================= */
 modeBtns.forEach(btn => {
@@ -1793,19 +2015,29 @@ function spawnEmbers(){
   }
 }
 
-/* ================= 拉杆 ================= */
+/* ================= 拉杆（横向 / 竖向自适应） ================= */
 function measure(){
-  maxX = Math.max(0, track.clientWidth - knob.offsetWidth - 6);
+  if (isVert){
+    maxPos = Math.max(0, track.clientHeight - knob.offsetHeight - 6);
+  } else {
+    maxPos = Math.max(0, track.clientWidth - knob.offsetWidth - 6);
+  }
 }
 
 function render(){
-  const knobW = knob.offsetWidth;
-  const p = maxX > 0 ? Math.min(1, Math.max(0, x / maxX)) : 0;
+  const knobSize = isVert ? knob.offsetHeight : knob.offsetWidth;
+  const p = maxPos > 0 ? Math.min(1, Math.max(0, pos / maxPos)) : 0;
+  const fillPx = 3 + pos + knobSize / 2;
 
-  knob.style.transform = `translate(${3 + x}px, -50%)`;
-  const fillPx = 3 + x + knobW / 2;
-  trackFill.style.width = fillPx + 'px';
-  trackGlow.style.width = fillPx + 'px';
+  if (isVert){
+    knob.style.transform = `translate(-50%, ${3 + pos}px)`;
+    trackFill.style.height = fillPx + 'px';
+    trackGlow.style.height = fillPx + 'px';
+  } else {
+    knob.style.transform = `translate(${3 + pos}px, -50%)`;
+    trackFill.style.width = fillPx + 'px';
+    trackGlow.style.width = fillPx + 'px';
+  }
 
   if (chargedColor) return;
 
@@ -1826,8 +2058,7 @@ function render(){
     leverHint.textContent = '继续拖动…';
     leverHint.style.color = '';
   } else {
-    leverHint.textContent = '向右拖动拉杆';
-    leverHint.style.color = '';
+    updateLeverHintIdle();
   }
 }
 
@@ -1835,19 +2066,27 @@ function applyChargedVisual(){
   if (!chargedColor) return;
   const gc = chargedColor;
 
-  x = maxX;
-  const knobW = knob.offsetWidth;
-  const fillPx = 3 + x + knobW / 2;
+  pos = maxPos;
+  const knobSize = isVert ? knob.offsetHeight : knob.offsetWidth;
+  const fillPx = 3 + pos + knobSize / 2;
 
-  knob.style.transform = `translate(${3 + x}px, -50%)`;
-  trackFill.style.width = fillPx + 'px';
-  trackGlow.style.width = fillPx + 'px';
+  if (isVert){
+    knob.style.transform = `translate(-50%, ${3 + pos}px)`;
+    trackFill.style.height = fillPx + 'px';
+    trackGlow.style.height = fillPx + 'px';
+    trackFill.style.background = `linear-gradient(180deg, ${rgba(gc,.12)}, ${gc})`;
+    trackGlow.style.background = `linear-gradient(180deg, transparent, ${gc})`;
+  } else {
+    knob.style.transform = `translate(${3 + pos}px, -50%)`;
+    trackFill.style.width = fillPx + 'px';
+    trackGlow.style.width = fillPx + 'px';
+    trackFill.style.background = `linear-gradient(90deg, ${rgba(gc,.12)}, ${gc})`;
+    trackGlow.style.background = `linear-gradient(90deg, transparent, ${gc})`;
+  }
 
   track.style.setProperty('--gc', gc);
   track.style.borderColor = gc;
-  trackFill.style.background = `linear-gradient(90deg, ${rgba(gc,.12)}, ${gc})`;
   trackFill.style.opacity = '1';
-  trackGlow.style.background = `linear-gradient(90deg, transparent, ${gc})`;
   trackGlow.style.opacity = '1';
   ambient.style.opacity = '0';
   track.classList.add('charged');
@@ -1857,24 +2096,35 @@ function applyChargedVisual(){
   knob.style.color = gc;
 }
 
-/* —— 拖拽（鼠标 / 触摸通用，事件挂在轨道上） —— */
 track.addEventListener('pointerdown', e => {
   if (locked) return;
   measure();
 
   const r = track.getBoundingClientRect();
-  const px = e.clientX - r.left;
-  const knobW = knob.offsetWidth;
-  const knobLeft = 3 + x;
-  const onKnob = px >= knobLeft - 8 && px <= knobLeft + knobW + 8;
+  let onKnob = false;
 
-  if (!onKnob){
-    // 只有鼠标等精确指针设备，才允许点击轨道把圆钮跳过去
-    if (!isFinePointer) return;
-    grabOffset = knobW / 2;
-    x = Math.max(0, Math.min(maxX, px - knobW / 2 - 3));
+  if (isVert){
+    const py = e.clientY - r.top;
+    const knobTop = 3 + pos;
+    onKnob = py >= knobTop - 8 && py <= knobTop + knob.offsetHeight + 8;
+    if (!onKnob){
+      if (!isFinePointer) return;
+      grabOffset = knob.offsetHeight / 2;
+      pos = Math.max(0, Math.min(maxPos, py - grabOffset - 3));
+    } else {
+      grabOffset = py - knobTop;
+    }
   } else {
-    grabOffset = px - knobLeft;
+    const px = e.clientX - r.left;
+    const knobLeft = 3 + pos;
+    onKnob = px >= knobLeft - 8 && px <= knobLeft + knob.offsetWidth + 8;
+    if (!onKnob){
+      if (!isFinePointer) return;
+      grabOffset = knob.offsetWidth / 2;
+      pos = Math.max(0, Math.min(maxPos, px - grabOffset - 3));
+    } else {
+      grabOffset = px - knobLeft;
+    }
   }
 
   dragging = true;
@@ -1883,9 +2133,8 @@ track.addEventListener('pointerdown', e => {
   try { track.setPointerCapture(e.pointerId); } catch(err){}
   render();
 
-  const p = maxX > 0 ? x / maxX : 0;
   AudioEngine.startDragSound();
-  AudioEngine.updateDragSound(p);
+  AudioEngine.updateDragSound(maxPos > 0 ? pos / maxPos : 0);
 
   if (e.cancelable) e.preventDefault();
 });
@@ -1893,10 +2142,16 @@ track.addEventListener('pointerdown', e => {
 track.addEventListener('pointermove', e => {
   if (!dragging) return;
   const r = track.getBoundingClientRect();
-  const px = e.clientX - r.left;
-  x = Math.max(0, Math.min(maxX, px - grabOffset - 3));
+
+  if (isVert){
+    const py = e.clientY - r.top;
+    pos = Math.max(0, Math.min(maxPos, py - grabOffset - 3));
+  } else {
+    const px = e.clientX - r.left;
+    pos = Math.max(0, Math.min(maxPos, px - grabOffset - 3));
+  }
   render();
-  AudioEngine.updateDragSound(maxX > 0 ? x / maxX : 0);
+  AudioEngine.updateDragSound(maxPos > 0 ? pos / maxPos : 0);
 });
 
 function endDrag(){
@@ -1905,9 +2160,9 @@ function endDrag(){
   knob.classList.remove('dragging');
   track.classList.remove('dragging');
   AudioEngine.stopDragSound();
-  const p = maxX > 0 ? x / maxX : 0;
+  const p = maxPos > 0 ? pos / maxPos : 0;
   if (p > 0.78) startPull();
-  else { x = 0; render(); }
+  else { pos = 0; render(); }
 }
 
 track.addEventListener('pointerup', endDrag);
@@ -2133,7 +2388,7 @@ function skipToSummary(){
   }
 
   locked = true;
-  x = maxX;
+  pos = maxPos;
   leverBar.classList.add('hidden');
 
   showSummary();
@@ -2147,7 +2402,7 @@ function reset(){
   chargedColor = null;
   pullToken++;
   revealToken++;
-  x = 0;
+  pos = 0;
   results = [];
   idx = 0;
   readyForNext = false;
@@ -2160,20 +2415,24 @@ function reset(){
   track.classList.remove('charged', 'dragging');
   track.style.removeProperty('--gc');
   track.style.borderColor = '';
+
+  // 同时清掉横向/纵向的 inline 尺寸与渐变
   trackFill.style.background = '';
   trackFill.style.opacity = '';
+  trackFill.style.width = '';
+  trackFill.style.height = '';
   trackGlow.style.background = '';
   trackGlow.style.opacity = '';
+  trackGlow.style.width = '';
+  trackGlow.style.height = '';
   ambient.style.opacity = '';
   knob.style.boxShadow = '';
   knob.style.color = '';
   knob.classList.remove('dragging');
 
   measure();
+  updateLeverHintIdle();
   render();
-
-  leverHint.textContent = '向右拖动拉杆';
-  leverHint.style.color = '';
 
   leverBar.classList.remove('hidden');
   stage.innerHTML = '';
@@ -2197,22 +2456,42 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 
-window.addEventListener('resize', () => {
-  measure();
-  if (chargedColor){
-    applyChargedVisual();
-  } else {
-    render();
+function handleResize(){
+  const wasVert = isVert;
+  checkLayout();
+
+  if (wasVert !== isVert){
+    // 方向切换：清掉另一方向的 inline 尺寸，进度归零
+    trackFill.style.width = '';
+    trackFill.style.height = '';
+    trackGlow.style.width = '';
+    trackGlow.style.height = '';
+    pos = 0;
+    updateLeverHintIdle();
   }
-});
-window.addEventListener('load', () => {
+
   measure();
+  if (chargedColor) applyChargedVisual();
+  else render();
+}
+
+window.addEventListener('resize', handleResize);
+window.addEventListener('orientationchange', () => {
+  setTimeout(handleResize, 120);
+});
+
+window.addEventListener('load', () => {
+  checkLayout();
+  measure();
+  updateLeverHintIdle();
   render();
   setScreen('idle');
 });
 
 spawnEmbers();
+checkLayout();
 measure();
+updateLeverHintIdle();
 render();
 setScreen('idle');
 updateMuteBtn();
