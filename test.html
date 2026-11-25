@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>星火抽卡</title>
+<title>极品帮抽卡</title>
 <style>
 /* ============ 基础 ============ */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -14,10 +14,13 @@ body{
   user-select:none;-webkit-user-select:none;
 }
 #app{
+  --pool-accent:#ff7a1a;
+  --pool-glow:rgba(255,110,26,.16);
+  --pool-bg:rgba(29,14,5,1);
   position:relative;width:100%;max-width:480px;height:100%;margin:0 auto;overflow:hidden;
   background:
-    radial-gradient(120% 55% at 50% -5%, #1d0e05 0%, #070403 62%),
-    radial-gradient(85% 45% at 50% 112%, rgba(255,110,26,.16), transparent 72%);
+    radial-gradient(120% 55% at 50% -5%, var(--pool-bg) 0%, #070403 62%),
+    radial-gradient(85% 45% at 50% 112%, var(--pool-glow), transparent 72%);
 }
 #app::after{
   content:'';position:absolute;inset:0;pointer-events:none;z-index:1;
@@ -47,6 +50,24 @@ body{
   right:14px;
   display:flex;gap:8px;align-items:center;
 }
+.top-nav{
+  position:absolute;z-index:80;top:calc(8px + env(safe-area-inset-top,0px));
+  left:12px;right:108px;display:flex;align-items:center;gap:10px;
+  min-height:42px;pointer-events:none;
+}
+.brand{min-width:0;display:flex;flex-direction:column;gap:2px}
+.brand-title{
+  color:#fff1e5;font-size:15px;font-weight:900;letter-spacing:.04em;
+  white-space:nowrap;text-shadow:0 0 15px var(--pool-accent);
+}
+.brand-sub{
+  color:var(--pool-accent);font-size:8px;letter-spacing:.2em;white-space:nowrap;
+}
+.top-rates{
+  min-width:0;display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap;
+  margin-left:auto;
+}
+.top-rates .pool-chip{font-size:9px;padding:4px 7px;letter-spacing:0;white-space:nowrap}
 .skip-btn{
   padding:9px 15px;border-radius:999px;
   font-family:inherit;font-size:12px;font-weight:700;
@@ -59,7 +80,7 @@ body{
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
 }
 .skip-btn:active{transform:scale(.94)}
-.skip-btn.hidden{opacity:0;pointer-events:none}
+.skip-btn.hidden{opacity:0;pointer-events:none;display:none}
 .mute-btn{
   width:38px;height:38px;border-radius:50%;
   display:grid;place-items:center;padding:0;
@@ -147,9 +168,54 @@ body{
   transition:opacity .4s ease, transform .4s ease;
 }
 .screen.active{opacity:1;pointer-events:auto;transform:none}
+#screenIdle{padding:72px 18px 184px}
 
 /* ============ 待机 ============ */
 .title-block{text-align:center;margin:auto 0;position:relative;z-index:3}
+.roster-wrap{
+  width:100%;max-width:420px;margin:auto 0;position:relative;z-index:3;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.roster-title{
+  font-size:11px;letter-spacing:.3em;color:rgba(255,255,255,.62);
+  text-shadow:0 0 14px var(--pool-accent);
+}
+.featured-roster{
+  width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;
+}
+.featured-card{
+  min-width:0;min-height:90px;padding:10px 5px;border-radius:12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+  border:1px solid color-mix(in srgb,var(--pool-accent) 48%,transparent);
+  background:linear-gradient(150deg,rgba(255,255,255,.055),rgba(0,0,0,.4));
+  box-shadow:0 0 20px -10px var(--pool-accent),inset 0 0 18px -12px var(--pool-accent);
+}
+.featured-sigil{font-size:28px;line-height:1;text-shadow:0 0 16px var(--pool-accent)}
+.featured-name{
+  max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:#f5ece4;font-size:11px;font-weight:700;
+}
+.pool-nav{
+  position:absolute;z-index:40;left:10px;right:10px;bottom:calc(7px + env(safe-area-inset-bottom,0px));
+  display:flex;justify-content:center;gap:8px;padding:7px;
+  border:1px solid color-mix(in srgb,var(--pool-accent) 34%,transparent);
+  border-radius:16px;background:rgba(8,5,4,.86);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transition:opacity .25s,transform .25s;
+}
+.pool-nav.hidden{opacity:0;pointer-events:none;transform:translateY(12px)}
+.pool-nav-btn{
+  flex:1;max-width:190px;padding:9px 10px;border-radius:10px;
+  color:rgba(255,232,215,.68);font-family:inherit;font-size:12px;font-weight:700;
+  line-height:1.2;letter-spacing:.1em;
+  border:1px solid transparent;background:transparent;cursor:pointer;
+}
+.pool-nav-btn.active{
+  color:#fff5ec;border-color:var(--pool-accent);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--pool-accent) 32%,transparent),rgba(0,0,0,.2));
+  box-shadow:0 0 20px -8px var(--pool-accent);
+}
+.pool-nav-btn:active{transform:scale(.97)}
 .title-sub{
   font-size:11px;letter-spacing:.42em;text-indent:.42em;
   color:rgba(255,150,80,.65);margin-bottom:16px;
@@ -176,8 +242,8 @@ body{
 .idle-particles{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
 .ember{
   position:absolute;bottom:-14px;border-radius:50%;
-  background:radial-gradient(circle,#ffd9a8,#ff7a1a 60%,transparent);
-  box-shadow:0 0 9px #ff7a1a;
+  background:radial-gradient(circle,#fff,var(--pool-accent) 60%,transparent);
+  box-shadow:0 0 9px var(--pool-accent);
   animation:emberRise linear infinite;opacity:0;
 }
 @keyframes emberRise{
@@ -188,7 +254,7 @@ body{
 }
 
 /* ============ 展示页 ============ */
-#screenReveal{padding:14px 20px 34px;justify-content:flex-start}
+#screenReveal{padding:64px 20px 34px;justify-content:flex-start}
 .reveal-top{display:flex;flex-direction:column;align-items:center;gap:11px;padding-top:6px}
 .reveal-counter{font-size:12px;letter-spacing:.2em;color:rgba(255,255,255,.45)}
 .reveal-counter b{
@@ -675,7 +741,7 @@ body{
 }
 
 /* ============ 总览页 ============ */
-#screenSummary{padding:26px 20px 34px;justify-content:flex-start}
+#screenSummary{padding:68px 20px 34px;justify-content:flex-start}
 .sum-head{
   font-size:12px;letter-spacing:.42em;text-indent:.42em;
   color:rgba(255,150,80,.8);margin-bottom:18px;flex:0 0 auto;
@@ -724,7 +790,7 @@ body{
 
 /* ============ 拉杆 ============ */
 #leverBar{
-  position:absolute;left:0;right:0;bottom:0;z-index:30;
+  position:absolute;left:0;right:0;bottom:60px;z-index:30;
   padding:0 22px calc(28px + env(safe-area-inset-bottom,0px));
   transition:opacity .35s ease, transform .35s ease;
 }
@@ -891,10 +957,22 @@ body{
   /* 所有内容区让出左侧拉杆宽度 */
   .screen{
     left:96px;
+    right:78px;
     padding:10px 16px 12px;
   }
 
   /* ---- 待机 ---- */
+  #screenIdle{padding:58px 12px 12px}
+  .top-nav{top:calc(5px + env(safe-area-inset-top,0px));left:108px;right:160px;min-height:38px}
+  .brand-title{font-size:13px}
+  .brand-sub{font-size:7px}
+  .top-rates .pool-chip{font-size:8px;padding:3px 5px}
+  .roster-wrap{max-width:100%;gap:8px}
+  .featured-roster{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .featured-card{min-height:68px;padding:6px 4px;gap:4px}
+  .featured-sigil{font-size:22px}
+  .featured-name{font-size:9px}
+  #leverBar{z-index:30}
   .title-sub{
     font-size:9px;letter-spacing:.35em;text-indent:.35em;margin-bottom:8px;
   }
@@ -904,7 +982,7 @@ body{
   .pool-chip{ font-size:9.5px;padding:4px 10px;letter-spacing:.04em; }
 
   /* ---- 逐张展示 ---- */
-  #screenReveal{ padding:10px 16px 12px; }
+  #screenReveal{ padding:48px 16px 12px; }
   .reveal-top{ gap:6px;padding-top:2px; }
   .reveal-counter{ font-size:10px; }
   .reveal-counter b{ font-size:17px; }
@@ -930,7 +1008,7 @@ body{
   .flash-card{ gap:10px; }
 
   /* ---- 总览 ---- */
-  #screenSummary{ padding:10px 16px 12px; justify-content:center; }
+  #screenSummary{ padding:48px 16px 12px; justify-content:center; }
   .sum-head{
     font-size:10px;letter-spacing:.3em;text-indent:.3em;margin-bottom:10px;
   }
@@ -1087,6 +1165,16 @@ body{
   .li-caption{ bottom:6%;font-size:11px; }
   .s1-meteor::after{ width:90px; }
 }
+
+@media (orientation: landscape){
+  .pool-nav{
+    left:10px;right:10px;top:auto;bottom:calc(7px + env(safe-area-inset-bottom,0px));
+    width:auto;flex-direction:row;justify-content:center;transform:none;
+  }
+  .pool-nav.hidden{transform:translateY(12px)}
+  .pool-nav-btn{width:auto;writing-mode:horizontal-tb}
+}
+
 </style>
 </head>
 <body>
@@ -1127,6 +1215,19 @@ body{
     <div class="li-caption">六星降临</div>
   </div>
 
+  <!-- 顶部置顶导航：标题、英文名称与概率公示 -->
+  <header class="top-nav">
+    <div class="brand">
+      <div class="brand-title">极品帮抽卡</div>
+      <div class="brand-sub">JiPinBangChouKa</div>
+    </div>
+    <div class="pool-row top-rates" aria-label="抽卡概率">
+      <div class="pool-chip r4">四星 87.6%</div>
+      <div class="pool-chip r5">五星 10%</div>
+      <div class="pool-chip r6">六星 2.4%</div>
+    </div>
+  </header>
+
   <!-- 顶部操作区 -->
   <div class="top-actions">
     <button class="mute-btn" id="muteBtn" aria-label="音效开关">
@@ -1143,17 +1244,17 @@ body{
   <!-- ========== 待机 ========== -->
   <section class="screen" id="screenIdle">
     <div class="idle-particles" id="idleParticles"></div>
-    <div class="title-block">
-      <div class="title-sub">ORACLE OF EMBERS</div>
-      <h1 class="title">星火抽卡</h1>
-      <div class="title-line"></div>
-      <div class="pool-row">
-        <div class="pool-chip r4">四星 · 紫 87.6%</div>
-        <div class="pool-chip r5">五星 · 金 10%</div>
-        <div class="pool-chip r6">六星 · 橙红 2.4%</div>
-      </div>
+    <div class="roster-wrap">
+      <div class="roster-title">当前卡池 · 六星一览</div>
+      <div class="featured-roster" id="featuredRoster"></div>
     </div>
   </section>
+
+  <!-- 卡池列表：如需更换卡池或六星名单，请编辑下方 POOLS 配置。 -->
+  <nav class="pool-nav" id="poolNav" aria-label="选择卡池">
+    <button class="pool-nav-btn active" type="button" data-pool="featured" aria-pressed="true">核心卡池-所有集合</button>
+    <button class="pool-nav-btn" type="button" data-pool="permanent" aria-pressed="false">特别卡池-极品事件</button>
+  </nav>
 
   <!-- ========== 逐张展示 ========== -->
   <section class="screen" id="screenReveal">
@@ -1668,30 +1769,65 @@ const RARITY = {
   6:{color:'#ff4a1c', name:'六星'}
 };
 
-const POOL = {
- 4:[
-    {name:'苍蝇', sigil:'🪰', tag:''},
-    {name:'大象', sigil:'🐘', tag:''},
-    {name:'爸爸的雷达', sigil:'💿', tag:''},
-    {name:'进度条', sigil:'━', tag:''},
-    {name:'香肠', sigil:'🌭', tag:''},
-    {name:'列巴', sigil:'🥖', tag:''},
-    {name:'土豆', sigil:'🥔', tag:''}
-  ],
-  5:[
-    {name:'口哥', sigil:'口', tag:''},
-    {name:'我不来但可以打', sigil:'🏸', tag:''},
-    {name:'哨位', sigil:'𓃟', tag:''},
-    {name:'报菜名', sigil:'📜', tag:''},
-    {name:'上海三打一', sigil:'♠️', tag:''}
-  ],
-  6:[
-    {name:'极品帮', sigil:'☨', tag:''},
-    {name:'YuHao', sigil:'Yu', tag:''},
-    {name:'阳光Alg哥', sigil:'🌞', tag:''},
-    {name:'333', sigil:'3', tag:''},
-    {name:'老玉米', sigil:'🌽', tag:''}
-  ]
+/* ★★★ 卡池列表配置：专题卡池、常驻卡池的名单分别独立维护。 */
+const POOLS = {
+  featured:{
+    name:'核心卡池-所有集合',
+    color:'#ff7a1a',
+    cards:{
+      4:[
+        {name:'苍蝇', sigil:'🪰', tag:''},
+        {name:'大象', sigil:'🐘', tag:''},
+        {name:'爸爸的雷达', sigil:'💿', tag:''},
+        {name:'进度条', sigil:'━', tag:''},
+        {name:'香肠', sigil:'🌭', tag:''},
+        {name:'列巴', sigil:'🥖', tag:''},
+        {name:'土豆', sigil:'🥔', tag:''}
+      ],
+      5:[
+        {name:'口哥', sigil:'口', tag:''},
+        {name:'我不来但可以打', sigil:'🏸', tag:''},
+        {name:'哨位', sigil:'𓃟', tag:''},
+        {name:'报菜名', sigil:'📜', tag:''},
+        {name:'上海三打一', sigil:'♠️', tag:''}
+      ],
+      6:[
+        {name:'极品帮', sigil:'☨', tag:''},
+        {name:'YuHao', sigil:'Yu', tag:''},
+        {name:'阳光Alg哥', sigil:'🌞', tag:''},
+        {name:'333', sigil:'3', tag:''},
+        {name:'C可烦', sigil:'😡', tag:''},
+        {name:'老玉米', sigil:'🌽', tag:''}
+      ]
+    }
+  },
+  permanent:{
+    name:'特别卡池-极品事件',
+    color:'#45b9ff',
+    cards:{
+      4:[
+        {name:'苍蝇', sigil:'🪰', tag:''},
+        {name:'大象', sigil:'🐘', tag:''},
+        {name:'爸爸的雷达', sigil:'💿', tag:''},
+        {name:'进度条', sigil:'━', tag:''},
+        {name:'香肠', sigil:'🌭', tag:''},
+        {name:'列巴', sigil:'🥖', tag:''},
+        {name:'土豆', sigil:'🥔', tag:''}
+      ],
+      5:[
+        {name:'口哥', sigil:'口', tag:''},
+        {name:'我不来但可以打', sigil:'🏸', tag:''},
+        {name:'哨位', sigil:'𓃟', tag:''},
+        {name:'报菜名', sigil:'📜', tag:''},
+        {name:'上海三打一', sigil:'♠️', tag:''}
+      ],
+      6:[
+        {name:'阳光Alg哥', sigil:'🌞', tag:''},
+        {name:'333', sigil:'3', tag:''},
+        {name:'老玉米', sigil:'🌽', tag:''}
+      ]
+    }
+  }
 };
 
 /* ================= 工具 ================= */
@@ -1734,7 +1870,7 @@ function rollN(n){
   const out = [];
   for (let i=0;i<n;i++){
     const stars = rollRarity();
-    const base = pick(POOL[stars]);
+    const base = pick(POOLS[selectedPool].cards[stars]);
     out.push({...base, stars, color:RARITY[stars].color});
   }
   return out;
@@ -1769,6 +1905,10 @@ const pullModeRow= $('pullModeRow');
 const modeBtns   = pullModeRow.querySelectorAll('.mode-btn');
 const screenReveal = $('screenReveal');
 const idleParticles = $('idleParticles');
+const featuredRoster = $('featuredRoster');
+const poolNav = $('poolNav');
+const poolNavBtns = poolNav.querySelectorAll('.pool-nav-btn');
+let selectedPool = 'featured';
 
 const SHOTS = [shot1, shot2, shot3];
 
@@ -1790,8 +1930,45 @@ function updateTopActions(k){
 function setScreen(k){
   Object.values(SCREENS).forEach(id => $(id).classList.remove('active'));
   $(SCREENS[k]).classList.add('active');
+  poolNav.classList.toggle('hidden', k !== 'idle');
   updateTopActions(k);
 }
+
+function renderFeaturedRoster(){
+  featuredRoster.innerHTML = '';
+  POOLS[selectedPool].cards[6].forEach(card => {
+    const item = document.createElement('div');
+    item.className = 'featured-card';
+    const sigil = document.createElement('div');
+    sigil.className = 'featured-sigil';
+    sigil.textContent = card.sigil;
+    const name = document.createElement('div');
+    name.className = 'featured-name';
+    name.textContent = card.name;
+    item.append(sigil, name);
+    featuredRoster.appendChild(item);
+  });
+}
+
+function selectPool(id){
+  if (!POOLS[id] || locked || id === selectedPool) return;
+  selectedPool = id;
+  const color = POOLS[id].color;
+  app.style.setProperty('--pool-accent', color);
+  app.style.setProperty('--pool-glow', rgba(color,.16));
+  app.style.setProperty('--pool-bg', rgba(color,.12));
+  poolNavBtns.forEach(btn => {
+    const active = btn.dataset.pool === id;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', String(active));
+  });
+  renderFeaturedRoster();
+  AudioEngine.playClick();
+}
+
+poolNavBtns.forEach(btn => {
+  btn.addEventListener('click', () => selectPool(btn.dataset.pool));
+});
 
 function updateMuteBtn(){
   if (AudioEngine.muted) muteBtn.classList.add('muted');
@@ -2481,6 +2658,7 @@ window.addEventListener('orientationchange', () => {
 });
 
 window.addEventListener('load', () => {
+  renderFeaturedRoster();
   checkLayout();
   measure();
   updateLeverHintIdle();
@@ -2489,6 +2667,7 @@ window.addEventListener('load', () => {
 });
 
 spawnEmbers();
+renderFeaturedRoster();
 checkLayout();
 measure();
 updateLeverHintIdle();
