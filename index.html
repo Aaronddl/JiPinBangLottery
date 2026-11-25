@@ -1252,8 +1252,8 @@ body{
 
   <!-- 卡池列表：如需更换卡池或六星名单，请编辑下方 POOLS 配置。 -->
   <nav class="pool-nav" id="poolNav" aria-label="选择卡池">
-    <button class="pool-nav-btn active" type="button" data-pool="featured" aria-pressed="true">专题卡池</button>
-    <button class="pool-nav-btn" type="button" data-pool="permanent" aria-pressed="false">常驻卡池</button>
+    <button class="pool-nav-btn active" type="button" data-pool="featured" aria-pressed="true">核心卡池-所有集合</button>
+    <button class="pool-nav-btn" type="button" data-pool="permanent" aria-pressed="false">特别卡池-极品事件</button>
   </nav>
 
   <!-- ========== 逐张展示 ========== -->
@@ -1772,7 +1772,7 @@ const RARITY = {
 /* ★★★ 卡池列表配置：专题卡池、常驻卡池的名单分别独立维护。 */
 const POOLS = {
   featured:{
-    name:'专题卡池',
+    name:'核心卡池-所有集合',
     color:'#ff7a1a',
     cards:{
       4:[
@@ -1793,12 +1793,16 @@ const POOLS = {
       ],
       6:[
         {name:'极品帮', sigil:'☨', tag:''},
-        {name:'YuHao', sigil:'Yu', tag:''}
+        {name:'YuHao', sigil:'Yu', tag:''},
+        {name:'阳光Alg哥', sigil:'🌞', tag:''},
+        {name:'333', sigil:'3', tag:''},
+        {name:'C可烦', sigil:'😡', tag:''},
+        {name:'老玉米', sigil:'🌽', tag:''}
       ]
     }
   },
   permanent:{
-    name:'常驻卡池',
+    name:'特别卡池-极品事件',
     color:'#45b9ff',
     cards:{
       4:[
